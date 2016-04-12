@@ -252,6 +252,8 @@ OO.plugin("Html5Skin", function (OO, _, $, W) {
         });
       }, this));
 
+      this.state.isMobile = Utils.isMobile();
+
       this.externalPluginSubscription();
       this.state.screenToShow = CONSTANTS.SCREEN.LOADING_SCREEN;
     },
@@ -1089,7 +1091,7 @@ OO.plugin("Html5Skin", function (OO, _, $, W) {
     setClosedCaptionsLanguage: function(){
       var language = this.state.closedCaptionOptions.enabled ? this.state.closedCaptionOptions.language : "";
       var mode = this.state.closedCaptionOptions.enabled ? OO.CONSTANTS.CLOSED_CAPTIONS.HIDDEN : OO.CONSTANTS.CLOSED_CAPTIONS.DISABLED;
-      this.mb.publish(OO.EVENTS.SET_CLOSED_CAPTIONS_LANGUAGE, language, {"mode": mode});
+      this.mb.publish(OO.EVENTS.SET_CLOSED_CAPTIONS_LANGUAGE, language, {"mode": mode}, this.state.closedCaptionOptions.availableLanguages);
     },
 
     toggleClosedCaptionScreen: function() {
