@@ -501,11 +501,14 @@ OO.plugin("Html5Skin", function (OO, _, $, W) {
         var delayedContentData = this.state.upNextInfo.delayedContentData;
         this.state.screenToShow = CONSTANTS.SCREEN.LOADING_SCREEN;
 
+        var mergedParams = this.state.playerParam;
+        mergedParams.autoplay = !!(this.state.config.nym && this.state.config.nym.autoPlayNextVideo);
+
         if (delayedContentData.clickedVideo.embed_code){
-          this.mb.publish(OO.EVENTS.SET_EMBED_CODE, delayedContentData.clickedVideo.embed_code, this.state.playerParam);
+          this.mb.publish(OO.EVENTS.SET_EMBED_CODE, delayedContentData.clickedVideo.embed_code, mergedParams);
         }
         else if (delayedContentData.clickedVideo.asset){
-          this.mb.publish(OO.EVENTS.SET_ASSET, delayedContentData.clickedVideo.asset, this.state.playerParam);
+          this.mb.publish(OO.EVENTS.SET_ASSET, delayedContentData.clickedVideo.asset, mergedParams);
         }
 
         this.mb.publish(OO.EVENTS.DISCOVERY_API.SEND_CLICK_EVENT, delayedContentData);
@@ -1131,12 +1134,14 @@ OO.plugin("Html5Skin", function (OO, _, $, W) {
         this.state.screenToShow = CONSTANTS.SCREEN.LOADING_SCREEN;
         this.renderSkin();
         this.mb.publish(OO.EVENTS.PAUSE);
+
         if (selectedContentData.clickedVideo.embed_code){
-          this.mb.publish(OO.EVENTS.SET_EMBED_CODE, selectedContentData.clickedVideo.embed_code);
+          this.mb.publish(OO.EVENTS.SET_EMBED_CODE, selectedContentData.clickedVideo.embed_code, {"autoplay": !!(this.state.config.nym && this.state.config.nym.autoPlayNextVideo)});
         }
         else if (selectedContentData.clickedVideo.asset){
-          this.mb.publish(OO.EVENTS.SET_ASSET, selectedContentData.clickedVideo.asset);
+          this.mb.publish(OO.EVENTS.SET_ASSET, selectedContentData.clickedVideo.asset, {"autoplay": !!(this.state.config.nym && this.state.config.nym.autoPlayNextVideo)});
         }
+
         this.mb.publish(OO.EVENTS.DISCOVERY_API.SEND_CLICK_EVENT, selectedContentData);
       }
     },
