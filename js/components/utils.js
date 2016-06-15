@@ -79,10 +79,11 @@ var Utils = {
   * Convert raw seconds into human friendly HH:MM format
   *
   * @function formatSeconds
-  * @param {integer} timeInSeconds The time to format in seconds
+  * @param {integer} time The time to format in seconds
   * @return {String} The time as a string in the HH:MM format
   */
-  formatSeconds: function(timeInSeconds) {
+  formatSeconds: function(time) {
+    var timeInSeconds = Math.abs(time);
     var seconds = parseInt(timeInSeconds,10) % 60;
     var hours = parseInt(timeInSeconds / 3600, 10);
     var minutes = parseInt((timeInSeconds - hours * 3600) / 60, 10);
@@ -99,19 +100,12 @@ var Utils = {
       seconds = '0' + seconds;
     }
 
-    return (parseInt(hours,10) > 0) ? (hours + ":" + minutes + ":" + seconds) : (minutes + ":" + seconds);
-  },
-
-  /**
-  * Check if an email address follows RFC standard
-  *
-  * @function validateEmail
-  * @returns {Boolean} Whether the email follows RFC spec
-  */
-  validateEmail: function(email) {
-    // RFC 2822 compliant regex
-    var regEx = /^(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$/i;
-    return regEx.test(email);
+    var timeStr = (parseInt(hours,10) > 0) ? (hours + ":" + minutes + ":" + seconds) : (minutes + ":" + seconds);
+    if (time >= 0) {
+      return timeStr;
+    } else {
+      return "-" + timeStr;
+    }
   },
 
   /**
@@ -317,24 +311,17 @@ var Utils = {
     return dimensions;
   },
 
-  windowHeightOverflow: function (outerWindowNode, innerWindow, offset) {
-    // outerWindow height
-    var outerWindowHeight = outerWindowNode.getBoundingClientRect().height;
-    var outerWindowHeightPadding = window.getComputedStyle(outerWindowNode, null).getPropertyValue('padding');
-    var outerWindowVisibleHeight = outerWindowHeightPadding ? outerWindowHeight - (2 * parseInt(outerWindowHeightPadding)) : outerWindowHeight;
-
-    // innerWindow height
-    var innerWindowHeight = innerWindow;
-
-    // offset
-    var offsetHeight = offset ? parseInt(offset) : 0;
-    outerWindowVisibleHeight -= offsetHeight;
-
-    var heightData = {};
-    heightData['outerWindowVisibleHeight'] = outerWindowVisibleHeight;
-    heightData['isWindowHeightOverflow'] = (innerWindowHeight >= outerWindowVisibleHeight);
-
-    return heightData;
+  /**
+  * Check if the current browser is on a touch enabled device.
+  * Function from https://hacks.mozilla.org/2013/04/detecting-touch-its-the-why-not-the-how/
+  *
+  * @function browserSupportsTouch
+  * @returns {Boolean} Whether or not the browser supports touch events.
+  */
+  browserSupportsTouch: function() {
+    return ('ontouchstart' in window) ||
+     (navigator.maxTouchPoints > 0) ||
+     (navigator.msMaxTouchPoints > 0);
   },
 
   _isValid: function( item ) {
