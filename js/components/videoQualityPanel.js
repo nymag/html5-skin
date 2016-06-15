@@ -4,6 +4,7 @@
  * @module VideoQualityPanel
  */
 var React = require('react'),
+    ScrollArea = require('react-scrollbar/dist/no-css'),
     ClassNames = require('classnames'),
     Icon = require('../components/icon');
 
@@ -28,18 +29,18 @@ var VideoQualityPanel = React.createClass({
 
   addAutoButton: function(bitrateButtons) {
     var autoQualityBtn = ClassNames({
-      'quality-auto-btn': true,
-      'selected': this.state.selected == 'auto'
+      'oo-quality-auto-btn': true,
+      'oo-selected': this.state.selected == 'auto'
     });
 
     //add auto btn to beginning of array
     bitrateButtons.unshift(
-      <li className="auto-li" key='auto-li'>
+      <li className="oo-auto-li" key='auto-li'>
         <a className={autoQualityBtn} key='auto' onClick={this.handleVideoQualityClick.bind(this, 'auto')}>
-          <div className="quality-auto-icon">
+          <div className="oo-quality-auto-icon">
             <Icon {...this.props} icon="auto"/>
           </div>
-          <div className="quality-auto-label">Auto</div>
+          <div className="oo-quality-auto-label">Auto</div>
         </a>
       </li>
     );
@@ -53,8 +54,8 @@ var VideoQualityPanel = React.createClass({
     //available bitrates
     for (var i = 0; i < availableBitrates.length; i++) {
       var qualityBtn = ClassNames({
-        'quality-btn': true,
-        'selected': this.state.selected == availableBitrates[i].id
+        'oo-quality-btn': true,
+        'oo-selected': this.state.selected == availableBitrates[i].id
       });
 
       if (availableBitrates[i].id == 'auto'){
@@ -66,11 +67,23 @@ var VideoQualityPanel = React.createClass({
       }
     }
 
+    var qualityScreenClass = ClassNames({
+      'oo-content-panel': !this.props.popover,
+      'oo-quality-panel': !this.props.popover,
+      'oo-quality-popover': this.props.popover,
+      'oo-mobile-fullscreen': !this.props.popover && this.props.controller.state.isMobile && (this.props.controller.state.fullscreen || this.props.controller.state.isFullWindow)
+    });
+
     return (
-      <div className="quality-panel">
-        <ul>
-          {bitrateButtons}
-        </ul>
+      <div className={qualityScreenClass}>
+        <ScrollArea
+          className="oo-quality-screen-content"
+          speed={this.props.popover ? 0.6 : 1}
+          horizontal={this.props.popover ? false : true}>
+          <ul>
+            {bitrateButtons}
+          </ul>
+        </ScrollArea>
       </div>
     );
   }
@@ -91,9 +104,10 @@ VideoQualityPanel.propTypes = {
 };
 
 VideoQualityPanel.defaultProps = {
+  popover: false,
   skinConfig: {
     icons: {
-      quality:{fontStyleClass:'icon icon-topmenu-quality'}
+      quality:{fontStyleClass:'oo-icon oo-icon-topmenu-quality'}
     }
   },
   videoQualityOptions: {

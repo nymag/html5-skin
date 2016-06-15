@@ -9,6 +9,7 @@ var React = require('react');
 var TestUtils = require('react-addons-test-utils');
 var CONSTANTS = require('../../js/constants/constants');
 var skinConfig = require('../../config/skin.json');
+var ReactDOM = require('react-dom');
 var ScrubberBar = require('../../js/components/scrubberBar');
 
 // start unit test
@@ -53,7 +54,7 @@ describe('ScrubberBar', function () {
         />
     );
 
-    var scrubberBar = TestUtils.findRenderedDOMComponentWithClass(DOM, "scrubberBarPadding");
+    var scrubberBar = TestUtils.findRenderedDOMComponentWithClass(DOM, "oo-scrubber-bar-padding");
     TestUtils.Simulate.mouseDown(scrubberBar);
     expect(scrubberBarClicked).toBe(true);
   });
@@ -85,7 +86,7 @@ describe('ScrubberBar', function () {
         />
     );
 
-    var scrubberBar = TestUtils.findRenderedDOMComponentWithClass(DOM, 'scrubberBarPadding');
+    var scrubberBar = TestUtils.findRenderedDOMComponentWithClass(DOM, 'oo-scrubber-bar-padding');
     TestUtils.Simulate.mouseDown(scrubberBar);
     DOM.handlePlayheadMouseUp({
       preventDefault: function() {},
@@ -117,7 +118,7 @@ describe('ScrubberBar', function () {
     DOM.state.playheadWidth = 10;
     DOM.forceUpdate();
 
-    var playhead = TestUtils.findRenderedDOMComponentWithClass(DOM, 'playheadPadding');
+    var playhead = TestUtils.findRenderedDOMComponentWithClass(DOM, 'oo-playhead-padding');
     var leftPos = parseInt(playhead.style.left);
     expect(leftPos).toBeGreaterThan(200);
     expect(leftPos).toBeLessThan(300);
@@ -138,12 +139,61 @@ describe('ScrubberBar', function () {
         controller={mockController}
         currentPlayhead={30}
         duration={60}
-        skinConfig={skinConfig}
-        />
+        skinConfig={skinConfig} />
     );
 
-    var playhead = TestUtils.findRenderedDOMComponentWithClass(DOM, 'playhead');
-    expect(playhead.className).toMatch('adPlayhead');
+    var playhead = TestUtils.findRenderedDOMComponentWithClass(DOM, 'oo-playhead');
+    expect(playhead.className).toMatch('oo-ad-playhead');
+  });
+
+  it('display thumbnail on hover', function() {
+    var mockController = {
+      state: {
+        isMobile: false,
+        thumbnails: true
+      }
+    };
+    var DOM = TestUtils.renderIntoDocument(
+      <ScrubberBar
+        controlBarVisible={true}
+        seeking={true}
+        controller={mockController}
+        currentPlayhead={30}
+        duration={60}
+        skinConfig={skinConfig}/>
+    );
+
+    var evt = {nativeEvent: {offsetX: 10}};
+    TestUtils.Simulate.mouseOver(ReactDOM.findDOMNode(DOM.refs.scrubberBarContainer), evt);
+    var thumbnail = TestUtils.scryRenderedDOMComponentsWithClass(DOM, 'oo-scrubber-thumbnail-container');
+    expect(thumbnail.length).toBe(1);
+  });
+
+  it('display thumbnail on scrubber bar mouse down', function() {
+    var mockController = {
+      state: {
+        isMobile: false,
+        thumbnails: true
+      },
+      updateSeekingPlayhead: function () {},
+      startHideControlBarTimer: function () {},
+      beginSeeking: function () {},
+      renderSkin: function () {}
+    };
+    var DOM = TestUtils.renderIntoDocument(
+      <ScrubberBar
+        controlBarVisible={true}
+        seeking={true}
+        controller={mockController}
+        currentPlayhead={30}
+        duration={60}
+        skinConfig={skinConfig}/>
+    );
+
+    var evt = {nativeEvent: {offsetX: 10}};
+    TestUtils.Simulate.mouseDown(ReactDOM.findDOMNode(DOM.refs.scrubberBarPadding), evt);
+    var thumbnail = TestUtils.scryRenderedDOMComponentsWithClass(DOM, 'oo-scrubber-thumbnail-container');
+    expect(thumbnail.length).toBe(1);
   });
 
 });

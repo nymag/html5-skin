@@ -5,10 +5,12 @@ var React = require('react'),
     ReactDOM = require('react-dom'),
     CONSTANTS = require('../constants/constants'),
     ClassNames = require('classnames'),
+    ScrubberBar = require('./scrubberBar'),
     Slider = require('./slider'),
     Utils = require('./utils'),
     VideoQualityPopover = require('./videoQualityPopover'),
-    Icon = require('../components/icon');
+    Logo = require('./logo');
+    Icon = require('./icon');
 
 var ControlBar = React.createClass({
   getInitialState: function() {
@@ -61,6 +63,13 @@ var ControlBar = React.createClass({
     this.props.controller.toggleFullscreen();
   },
 
+  handleLiveClick: function(evt) {
+    evt.stopPropagation();
+    evt.cancelBubble = true;
+    evt.preventDefault();
+    this.props.controller.seek(this.props.duration);
+  },
+
   handleVolumeIconClick: function(evt) {
     if (this.isMobile){
       this.props.controller.startHideControlBarTimer();
@@ -92,7 +101,6 @@ var ControlBar = React.createClass({
     } else {
       this.toggleQualityPopover();
     }
-
   },
 
   toggleQualityPopover: function() {
@@ -116,7 +124,7 @@ var ControlBar = React.createClass({
   },
 
   handleClosedCaptionClick: function() {
-    this.props.controller.toggleClosedCaptionScreen();
+    this.props.controller.toggleScreen(CONSTANTS.SCREEN.CLOSEDCAPTION_SCREEN);
   },
 
   //TODO(dustin) revisit this, doesn't feel like the "react" way to do this.
@@ -138,13 +146,6 @@ var ControlBar = React.createClass({
 
   volumeRemoveHighlight:function() {
     this.removeHighlight({target: ReactDOM.findDOMNode(this.refs.volumeIcon)});
-  },
-
-  handleWatermarkClick: function() {
-    var watermarkClickUrl = this.props.skinConfig.controlBar.watermark.clickUrl;
-    if (watermarkClickUrl){
-      window.open(watermarkClickUrl,'_blank');
-    }
   },
 
   changeVolumeSlider: function(event) {
@@ -189,16 +190,16 @@ var ControlBar = React.createClass({
       //create each volume tick separately
       var turnedOn = this.props.controller.state.volumeState.volume >= (i+1) / 10;
       var volumeClass = ClassNames({
-        "volumeBar": true,
-        "on": turnedOn
+        "oo-volume-bar": true,
+        "oo-on": turnedOn
       });
       volumeBars.push(<a data-volume={(i+1)/10} className={volumeClass} key={i}
         onClick={this.handleVolumeClick}></a>);
     }
 
-    var volumeSlider = <div className="volumeSlider"><Slider value={parseFloat(this.props.controller.state.volumeState.volume)}
+    var volumeSlider = <div className="oo-volume-slider"><Slider value={parseFloat(this.props.controller.state.volumeState.volume)}
                         onChange={this.changeVolumeSlider}
-                        className={"slider slider-volume"}
+                        className={"oo-slider oo-slider-volume"}
                         itemRef={"volumeSlider"}
                         minValue={"0"}
                         maxValue={"1"}
@@ -212,43 +213,47 @@ var ControlBar = React.createClass({
       volumeControls = this.props.controller.state.volumeState.volumeSliderVisible ? volumeSlider : null;
     }
 
-    var videoQualityPopover = this.state.showVideoQualityPopover ? <VideoQualityPopover {...this.props} togglePopoverAction={this.toggleQualityPopover}/> : null;
-    var iconSetting = {};
+    var playheadTime = isFinite(parseInt(this.props.currentPlayhead)) ? Utils.formatSeconds(parseInt(this.props.currentPlayhead)) : null;
+    var isLiveStream = this.props.isLiveStream;
     var durationSetting = {color: this.props.skinConfig.controlBar.iconStyle.inactive.color};
-    var watermarkUrl = this.props.skinConfig.controlBar.watermark.imageResource.url;
-    var currentPlayheadTime = isFinite(parseInt(this.props.currentPlayhead)) ? Utils.formatSeconds(parseInt(this.props.currentPlayhead)) : null;
-    var totalTimeContent = this.props.authorization.streams[0].is_live_stream ? null : <span className="total-time">{totalTime}</span>;
+    var timeShift = this.props.currentPlayhead - this.props.duration;
+    // checking timeShift < 1 seconds (not == 0) as processing of the click after we rewinded and then went live may take some time
+    var isLiveNow = Math.abs(timeShift) < 1;
+    var liveClick = isLiveNow ? null : this.handleLiveClick;
+    var playheadTimeContent = isLiveStream ? (isLiveNow ? null : Utils.formatSeconds(timeShift)) : playheadTime;
+    var totalTimeContent = isLiveStream ? null : <span className="oo-total-time">{totalTime}</span>;
 
     // TODO: Update when implementing localization
     var liveText = Utils.getLocalizedString(this.props.language, CONSTANTS.SKIN_TEXT.LIVE, this.props.localizableStrings);
 
-    var qualityClass = ClassNames({
-      "quality": true,
-      "controlBarItem": true,
-      "selected": this.state.showVideoQualityPopover
-    });
+    var liveClass = ClassNames({
+        "oo-control-bar-item oo-live oo-live-indicator": true,
+        "oo-live-nonclickable": isLiveNow
+      });
 
-    var watermarkClass = ClassNames({
-      "watermark": true,
-      "controlBarItem": true,
-      "nonClickableWatermark": !this.props.skinConfig.controlBar.watermark.clickUrl
+    var videoQualityPopover = this.state.showVideoQualityPopover ? <VideoQualityPopover {...this.props} togglePopoverAction={this.toggleQualityPopover}/> : null;
+
+    var qualityClass = ClassNames({
+      "oo-quality": true,
+      "oo-control-bar-item": true,
+      "oo-selected": this.state.showVideoQualityPopover
     });
 
     var controlItemTemplates = {
-      "playPause": <button className="playPause controlBarItem" onClick={this.handlePlayClick} key="playPause">
+      "playPause": <button className="oo-play-pause oo-control-bar-item" onClick={this.handlePlayClick} key="playPause">
         <Icon {...this.props} icon={playIcon}
           style={dynamicStyles.iconCharacter}
           onMouseOver={this.highlight} onMouseOut={this.removeHighlight}/>
       </button>,
 
-      "live": <div className="live controlBarItem" key="live">
-        <div className="liveIndicator">
-          <div className="liveCircle"></div>
-          <span className="liveText"> {liveText}</span>
-        </div>
-      </div>,
+      "live": <button className={liveClass}
+          ref="LiveButton"
+          onClick={liveClick} key="live">
+        <div className="oo-live-circle"></div>
+        <span className="oo-live-text">{liveText}</span>
+      </button>,
 
-      "volume": <div className="volume controlBarItem" key="volume">
+      "volume": <div className="oo-volume oo-control-bar-item" key="volume">
         <Icon {...this.props} icon={volumeIcon} ref="volumeIcon"
           style={this.props.skinConfig.controlBar.iconStyle.inactive}
           onClick={this.handleVolumeIconClick}
@@ -256,20 +261,20 @@ var ControlBar = React.createClass({
         {volumeControls}
       </div>,
 
-      "timeDuration": <div className="timeDuration controlBarDuration" style={durationSetting} key="timeDuration">
-        <span>{currentPlayheadTime}</span>{totalTimeContent}
+      "timeDuration": <div className="oo-time-duration oo-control-bar-duration" style={durationSetting} key="timeDuration">
+        <span>{playheadTimeContent}</span>{totalTimeContent}
       </div>,
 
-      "flexibleSpace": <div className="flexibleSpace controlBarFlexSpace" key="flexibleSpace"></div>,
+      "flexibleSpace": <div className="oo-flexible-space oo-control-bar-flex-space" key="flexibleSpace"></div>,
 
-      "moreOptions": <button className="moreOptions controlBarItem"
+      "moreOptions": <button className="oo-more-options oo-control-bar-item"
         onClick={this.handleMoreOptionsClick} key="moreOptions">
         <Icon {...this.props} icon="ellipsis" style={dynamicStyles.iconCharacter}
           onMouseOver={this.highlight} onMouseOut={this.removeHighlight}/>
       </button>,
 
       "quality": (
-        <div className="popover-button-container" key="quality">
+        <div className="oo-popover-button-container" key="quality">
           {videoQualityPopover}
           <button className={qualityClass} onClick={this.handleQualityClick}>
             <Icon {...this.props} icon="quality" style={dynamicStyles.iconCharacter}
@@ -278,33 +283,35 @@ var ControlBar = React.createClass({
         </div>
       ),
 
-      "discovery": <button className="discovery controlBarItem"
+      "discovery": <button className="oo-discovery oo-control-bar-item"
         onClick={this.handleDiscoveryClick} key="discovery">
         <Icon {...this.props} icon="discovery" style={dynamicStyles.iconCharacter}
           onMouseOver={this.highlight} onMouseOut={this.removeHighlight}/>
       </button>,
 
-      "closedCaption": <button className="closedCaption controlBarItem"
+      "closedCaption": <button className="oo-closed-caption oo-control-bar-item"
         onClick={this.handleClosedCaptionClick} key="closedCaption">
         <Icon {...this.props} icon="cc" style={dynamicStyles.iconCharacter}
           onMouseOver={this.highlight} onMouseOut={this.removeHighlight}/>
       </button>,
 
-      "share": <button className="share controlBarItem"
+      "share": <button className="oo-share oo-control-bar-item"
         onClick={this.handleShareClick} key="share">
         <Icon {...this.props} icon="share" style={dynamicStyles.iconCharacter}
           onMouseOver={this.highlight} onMouseOut={this.removeHighlight}/>
       </button>,
 
-      "fullscreen": <button className="fullscreen controlBarItem"
+      "fullscreen": <button className="oo-fullscreen oo-control-bar-item"
         onClick={this.handleFullscreenClick} key="fullscreen">
         <Icon {...this.props} icon={fullscreenIcon} style={dynamicStyles.iconCharacter}
           onMouseOver={this.highlight} onMouseOut={this.removeHighlight}/>
       </button>,
 
-      "watermark": <div className={watermarkClass} key="watermark" style = {dynamicStyles.watermarkImageStyle}>
-        <img src={watermarkUrl} onClick={this.handleWatermarkClick}/>
-      </div>
+      "logo": <Logo key="logo" imageUrl={this.props.skinConfig.controlBar.logo.imageResource.url}
+                    clickUrl={this.props.skinConfig.controlBar.logo.clickUrl}
+                    target={this.props.skinConfig.controlBar.logo.target}
+                    width={this.props.responsiveView != this.props.skinConfig.responsive.breakpoints.xs.id ? this.props.skinConfig.controlBar.logo.width : null}
+                    height={this.props.skinConfig.controlBar.logo.height}/>
     };
 
     var controlBarItems = [];
@@ -355,14 +362,19 @@ var ControlBar = React.createClass({
         continue;
       }
 
+      //do not show logo if no image url available
+      if (!this.props.skinConfig.controlBar.logo.imageResource.url && (defaultItems[k].name === "logo")){
+        continue;
+      }
+
       if (Utils.isIos() && (defaultItems[k].name === "volume")){
         continue;
       }
 
       // Not sure what to do when there are multi streams
       if (defaultItems[k].name === "live" &&
-          (typeof this.props.authorization === 'undefined' ||
-          !(this.props.authorization.streams[0].is_live_stream))) {
+          (typeof this.props.isLiveStream === 'undefined' ||
+          !(this.props.isLiveStream))) {
         continue;
       }
 
@@ -390,17 +402,10 @@ var ControlBar = React.createClass({
   setupItemStyle: function() {
     var returnStyles = {};
 
-    for (element in this.props.skinConfig.buttons.desktopContent){
-      if (this.props.skinConfig.buttons.desktopContent[element].name == "watermark"){
-        returnStyles.watermarkImageStyle = {
-          width: this.responsiveUIMultiple * this.props.skinConfig.buttons.desktopContent[element].minWidth + "px"
-        };
-      }
-    }
-
     returnStyles.iconCharacter = {
       color: this.props.skinConfig.controlBar.iconStyle.inactive.color,
       opacity: this.props.skinConfig.controlBar.iconStyle.inactive.opacity
+
     };
     return returnStyles;
   },
@@ -408,16 +413,17 @@ var ControlBar = React.createClass({
 
   render: function() {
     var controlBarClass = ClassNames({
-      "control-bar": true,
-      "control-bar-hidden": !this.props.controlBarVisible,
-      "control-bar-visible": this.props.controlBarVisible
+      "oo-control-bar": true,
+      "oo-control-bar-hidden": !this.props.controlBarVisible
     });
 
     var controlBarItems = this.populateControlBar();
 
     return (
       <div className={controlBarClass} onMouseUp={this.handleControlBarMouseUp} onTouchEnd={this.handleControlBarMouseUp}>
-        <div className="controlBarItemsWrapper">
+        <ScrubberBar {...this.props} />
+
+        <div className="oo-control-bar-items-wrapper">
           {controlBarItems}
         </div>
       </div>
@@ -426,11 +432,7 @@ var ControlBar = React.createClass({
 });
 
 ControlBar.defaultProps = {
-  authorization: {
-    streams: [
-      {is_live_stream: false}
-    ]
-  },
+  isLiveStream: false,
   skinConfig: {
     responsive: {
       breakpoints: {

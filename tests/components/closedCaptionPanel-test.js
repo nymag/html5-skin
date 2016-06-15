@@ -1,11 +1,15 @@
-jest.dontMock('../../js/components/closedCaptionPanel')
+jest.dontMock('../../js/components/closed-caption/closedCaptionPanel')
+    .dontMock('../../js/components/closed-caption/ccPreviewPanel')
+    .dontMock('../../js/components/closed-caption/languageTab')
+    .dontMock('../../js/components/closed-caption/onOffSwitch')
     .dontMock('../../js/components/icon')
+    .dontMock('../../js/components/tabs')
     .dontMock('classnames');
 
 var React = require('react');
 var ReactDOM = require('react-dom');
 var TestUtils = require('react-addons-test-utils');
-var ClosedCaptionPanel = require('../../js/components/closedCaptionPanel');
+var ClosedCaptionPanel = require('../../js/components/closed-caption/closedCaptionPanel');
 
 describe('ClosedCaptionPanel', function () {
   var availableLanguages = {"languages":["en","fr","de","ru","it"],
@@ -24,14 +28,14 @@ describe('ClosedCaptionPanel', function () {
     //Render closed caption panel into DOM
     var DOM = TestUtils.renderIntoDocument(<ClosedCaptionPanel skinConfig={skinConfig} closedCaptionOptions={closedCaptionOptions}/>);
 
-    var items0 = TestUtils.scryRenderedDOMComponentsWithClass(DOM, 'language');
-    var leftButton = TestUtils.findRenderedDOMComponentWithClass(DOM, 'leftButton');
-    var rightButton = TestUtils.findRenderedDOMComponentWithClass(DOM, 'rightButton');
+    var items0 = TestUtils.scryRenderedDOMComponentsWithClass(DOM, 'oo-language');
+    var leftButton = TestUtils.findRenderedDOMComponentWithClass(DOM, 'oo-left-button');
+    var rightButton = TestUtils.findRenderedDOMComponentWithClass(DOM, 'oo-right-button');
 
     function testItemsOnPage(items, page){
       var j = items0.length*(page);
       for (var i=0; i<items.length; i++){
-        var itemText = TestUtils.scryRenderedDOMComponentsWithClass(DOM, 'language')[i].textContent;
+        var itemText = TestUtils.scryRenderedDOMComponentsWithClass(DOM, 'oo-language')[i].textContent;
           expect(itemText).toEqual(availableLanguages.locale[availableLanguages.languages[i+j]]);
       }
     }
@@ -40,7 +44,7 @@ describe('ClosedCaptionPanel', function () {
 
     //checking that languages displayed on page 1 are as expected after clicking right chevron
     TestUtils.Simulate.click(rightButton);
-    var items1 = TestUtils.scryRenderedDOMComponentsWithClass(DOM, 'language');
+    var items1 = TestUtils.scryRenderedDOMComponentsWithClass(DOM, 'oo-language');
     testItemsOnPage(items1, 1);
 
     //checking that languages displayed on page 0 are as expected after clicking left chevron
@@ -58,7 +62,7 @@ describe('ClosedCaptionPanel', function () {
     var DOM = TestUtils.renderIntoDocument(<ClosedCaptionPanel skinConfig={skinConfig} closedCaptionOptions={closedCaptionOptions} controller={mockController}/>);
 
     var closedCaptionsEnabled = closedCaptionOptions.enabled;
-    var toggle = TestUtils.findRenderedDOMComponentWithClass(DOM, 'switch-container-selectable');
+    var toggle = TestUtils.findRenderedDOMComponentWithClass(DOM, 'oo-switch-container-selectable');
 
     TestUtils.Simulate.click(toggle);
     expect(closedCaptionsEnabled).toBe(!closedCaptionOptions.enabled);
@@ -76,7 +80,7 @@ describe('ClosedCaptionPanel', function () {
 
     var DOM = TestUtils.renderIntoDocument(<ClosedCaptionPanel skinConfig={skinConfig} closedCaptionOptions={closedCaptionOptions} controller={mockController}/>);
 
-    var newLanguage = TestUtils.scryRenderedDOMComponentsWithClass(DOM, 'language')[1];
+    var newLanguage = TestUtils.scryRenderedDOMComponentsWithClass(DOM, 'oo-language')[1];
     TestUtils.Simulate.click(newLanguage);
     expect(selectedLanguage).toBe(availableLanguages.languages[1]);
   });
@@ -92,7 +96,7 @@ describe('ClosedCaptionPanel', function () {
 
     var DOM = TestUtils.renderIntoDocument(<ClosedCaptionPanel skinConfig={skinConfig} closedCaptionOptions={closedCaptionOptions} controller={mockController}/>);
 
-    var newLanguage = TestUtils.scryRenderedDOMComponentsWithClass(DOM, 'language')[1];
+    var newLanguage = TestUtils.scryRenderedDOMComponentsWithClass(DOM, 'oo-language')[1];
     TestUtils.Simulate.click(newLanguage);
     expect(selectedLanguage).toBe(skinConfig.closedCaptionOptions.defaultLanguage);
 
@@ -103,7 +107,7 @@ describe('ClosedCaptionPanel', function () {
      var availableLanguages = {"languages":["en"], "locale":{"en": "English"}};
      closedCaptionOptions.availableLanguages = availableLanguages;
      var DOM = TestUtils.renderIntoDocument(<ClosedCaptionPanel skinConfig={skinConfig} closedCaptionOptions={closedCaptionOptions}/>);
-     var items0 = TestUtils.scryRenderedDOMComponentsWithClass(DOM, 'language');
+     var items0 = TestUtils.scryRenderedDOMComponentsWithClass(DOM, 'oo-language');
      expect(items0.length).toBe(0);
   });
 });

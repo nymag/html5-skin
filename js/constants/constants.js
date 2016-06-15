@@ -39,6 +39,7 @@ module.exports = {
     OFF: "Off",
     DISCOVER: "Discover",
     UP_NEXT: "Up next",
+    VIDEO_QUALITY: "Video Quality",
     SHARE_CALL_TO_ACTION: "Invest In Social Change",
     SHARE: "Share",
     START_AT: "Start at",
@@ -65,8 +66,8 @@ module.exports = {
   },
 
   UI: {
-    defaultControlBarHeight: 60,
-    defaultScrubberBarHeight: 5,
+    defaultControlBarHeight: 90,
+    defaultScrubberBarHeight: 4,
     DEFAULT_SCRUBBERBAR_LEFT_RIGHT_PADDING: 15
   },
 
