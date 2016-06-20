@@ -1,6 +1,10 @@
 # nym notes
 
-Branch name format `nym-{base version number}`
+Branch name format `nym-{base version number}`.
+
+Our custom settings are namespaced to `playerParam.skin.inline.nym`.
+
+We serve the compiled `build/html5-skin.min.js` file through the-factory and clay.
 
 # html5-skin
 An open-source HTML5 UI skin based on [React.js](https://github.com/facebook/react) that overlays Ooyala V4 core player. This README contains introduction, setup and customization sections.
