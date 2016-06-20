@@ -1,6 +1,6 @@
 # nym notes
 
-We are using the `nym` branch for production. Currently the `nym` branch is based on v4.2.7. Upgrading to the latest stable broke styles and will need to be another ticket.
+Branch name format `nym-{base version number}`
 
 # html5-skin
 An open-source HTML5 UI skin based on [React.js](https://github.com/facebook/react) that overlays Ooyala V4 core player. This README contains introduction, setup and customization sections.
