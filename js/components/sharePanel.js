@@ -110,9 +110,7 @@ var SharePanel = React.createClass({
 
   handleFacebookClick: function() {
     var facebookUrl = "http://www.facebook.com/sharer.php";
-    console.log('this = ', this);
     facebookUrl += "?u=" + encodeURIComponent(this.props.contentTree.hostedAtURL || location.href);
-    console.log('facebook click', this.props.contentTree.hostedAtURL || location.href);
     window.open(facebookUrl, "facebook window", "height=315,width=780");
   },
 
