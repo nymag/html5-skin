@@ -94,7 +94,7 @@ var SharePanel = React.createClass({
     var emailBody = Utils.getLocalizedString(this.props.language, CONSTANTS.SKIN_TEXT.EMAIL_BODY, this.props.localizableStrings);
     var mailToUrl = "mailto:";
     mailToUrl += "?subject=" + encodeURIComponent(this.props.contentTree.title);
-    mailToUrl += "&body=" + encodeURIComponent(emailBody + location.href);
+    mailToUrl += "&body=" + encodeURIComponent(emailBody + (this.props.contentTree.hostedAtURL || location.href));
     //location.href = mailToUrl; //same window
     var emailWindow = window.open(mailToUrl, "email", "height=315,width=780"); //new window
     setTimeout(function(){
@@ -110,20 +110,22 @@ var SharePanel = React.createClass({
 
   handleFacebookClick: function() {
     var facebookUrl = "http://www.facebook.com/sharer.php";
-    facebookUrl += "?u=" + encodeURIComponent(location.href);
+    console.log('this = ', this);
+    facebookUrl += "?u=" + encodeURIComponent(this.props.contentTree.hostedAtURL || location.href);
+    console.log('facebook click', this.props.contentTree.hostedAtURL || location.href);
     window.open(facebookUrl, "facebook window", "height=315,width=780");
   },
 
   handleGPlusClick: function() {
     var gPlusUrl = "https://plus.google.com/share";
-    gPlusUrl += "?url=" + encodeURIComponent(location.href);
+    gPlusUrl += "?url=" + encodeURIComponent(this.props.contentTree.hostedAtURL || location.href);
     window.open(gPlusUrl, "google+ window", "menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600");
   },
 
   handleTwitterClick: function() {
     var twitterUrl = "https://twitter.com/intent/tweet";
     twitterUrl += "?text=" + encodeURIComponent(this.props.contentTree.title+": ");
-    twitterUrl += "&url=" + encodeURIComponent(location.href);
+    twitterUrl += "&url=" + encodeURIComponent(this.props.contentTree.hostedAtURL || location.href);
     window.open(twitterUrl, "twitter window", "height=300,width=750");
   },
 
