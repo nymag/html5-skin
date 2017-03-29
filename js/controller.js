@@ -180,7 +180,7 @@ OO.plugin("Html5Skin", function (OO, _, $, W) {
         this.mb.subscribe(OO.EVENTS.CHANGE_CLOSED_CAPTION_LANGUAGE, 'customerUi', _.bind(this.onChangeClosedCaptionLanguage, this));
         this.mb.subscribe(OO.EVENTS.VOLUME_CHANGED, "customerUi", _.bind(this.onVolumeChanged, this));
         // NYM – sync closed caption viewability with muted audio
-        this.mb.subscribe(OO.EVENTS.VOLUME_CHANGED, "customerUi", _.bind(this.onVolumeChangedToggleClosedCaptions, this));
+        this.mb.subscribe(OO.EVENTS.VOLUME_CHANGED, "customerUi", _.bind(this.nymOnVolumeChangedToggleClosedCaptions, this));
         this.mb.subscribe(OO.EVENTS.VC_VIDEO_ELEMENT_IN_FOCUS, "customerUi", _.bind(this.onVideoElementFocus, this));
         this.mb.subscribe(OO.EVENTS.REPLAY, "customerUi", _.bind(this.onReplay, this));
         this.mb.subscribe(OO.EVENTS.ASSET_DIMENSION, "customerUi", _.bind(this.onAssetDimensionsReceived, this));
@@ -368,7 +368,7 @@ OO.plugin("Html5Skin", function (OO, _, $, W) {
 
     // NYM – enable closed captions when volume is off, or disable closed captions when volume is on
     // for v4 players that default to displaying closed captions if available
-    onVolumeChangedToggleClosedCaptions: function (event, newVolue) {
+    nymOnVolumeChangedToggleClosedCaptions: function (event, newVolue) {
       this.state.persistentSettings.closedCaptionOptions['enabled']
       if ((newVolue <= 0 && !this.state.closedCaptionOptions.enabled)
         || (newVolue > 0 && this.state.closedCaptionOptions.enabled)) {
