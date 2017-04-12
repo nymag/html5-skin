@@ -884,6 +884,9 @@ OO.plugin("Html5Skin", function (OO, _, $, W) {
       this.state.config.upNext.timeToShow = Utils.convertStringToNumber(this.state.config.upNext.timeToShow);
       this.state.config.discoveryScreen.countDownTime = Utils.convertStringToNumber(this.state.config.discoveryScreen.countDownTime);
 
+      // NYM – change number of items per page by responsive breakpoints if exist
+      this.state.videosPerPage = Utils.extend({xs:2, sm:4, md:6, lg:8}, this.state.config.discoveryScreen.videosPerPage || {});
+
       //load player
       this.skin = ReactDOM.render(
         React.createElement(Skin, {skinConfig: this.state.config, localizableStrings: Localization.languageFiles, language: Utils.getLanguageToUse(this.state.config), controller: this, closedCaptionOptions: this.state.closedCaptionOptions, pauseAnimationDisabled: this.state.pauseAnimationDisabled}), document.querySelector("#" + this.state.elementId + " .oo-player-skin")

@@ -191,6 +191,8 @@ var Skin = React.createClass({
               ref="adScreen" />
           );
           break;
+
+        // NYM – support `videosPerPage` options
         case CONSTANTS.SCREEN.DISCOVERY_SCREEN:
           screen = (
             <ContentScreen
@@ -200,7 +202,7 @@ var Skin = React.createClass({
               icon="discovery">
               <DiscoveryPanel
                 {...this.props}
-                videosPerPage={{xs:2, sm:4, md:6, lg:8}}
+                videosPerPage={this.state.videosPerPage}
                 forceCountDownTimer={this.state.forceCountDownTimerOnEndScreen}
                 discoveryData={this.state.discoveryData}
                 playerState={this.state.playerState}
