@@ -1416,6 +1416,15 @@ OO.plugin("Html5Skin", function (OO, _, $, W) {
       if (!closedCaptionsInfo) {
         return;
       }
+      // NYM - if we have a "zz" caption option from backlot, catch it here
+      // and at least change the label to English
+      if (closedCaptionsInfo.languages && closedCaptionsInfo.locale) {
+        for (var i = 0; i < closedCaptionsInfo.languages.length; i++) {
+          if (closedCaptionsInfo.languages[i] === 'zz') {
+            closedCaptionsInfo.locale['zz'] = 'English';
+          }
+        }
+      }
       // Load the CC info for the video with the given id onto the state
       this.state.closedCaptionOptions.availableLanguages = closedCaptionsInfo;
       if (this.state.closedCaptionOptions.enabled) {
